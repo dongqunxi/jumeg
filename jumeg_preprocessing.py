@@ -286,7 +286,7 @@ def apply_ica_cleaning(fname_ica, n_pca_components=None,
                 fi_mne_notch.apply_filter(meg_raw._data, picks=picks)
 
         # apply cleaning
-        meg_clean = ica.apply(meg_raw, exclude=ica.exclude,
+        meg_clean = ica.apply(meg_raw.copy(), exclude=ica.exclude,
                               n_pca_components=npca, copy=True)
         meg_clean.save(fnclean, overwrite=True)
 
@@ -858,8 +858,7 @@ def apply_ica_select_brain_response(fname_clean_raw, n_pca_components=None,
         else:
             npca = picks.size
 
-        meg_clean = ica.apply(meg_raw, include=ctps_ics, n_pca_components=npca,
-                              copy=True)
+        meg_clean = ica.apply(meg_raw.copy(), include=ctps_ics, n_pca_components=npca)
         if not meg_clean.info['description']:
             meg_clean.info['description'] = ''
             meg_clean.info['description'] += 'Raw recomposed from ctps selected\
