@@ -13,9 +13,9 @@ Installation
 ============
 
 1. Fork the repository by visiting https://github.com/jdammers/jumeg and clicking on the Fork button. 
-2. Your own fork of the repo will be created at https://github.com/<yourname>/jumeg.
+2. Your own fork of the repo will be created at https://github.com/your_username/jumeg.
 3. Clone the repository from the system shell using the command:
-   git clone https://github.com/<yourname>/jumeg
+   git clone https://github.com/your_username/jumeg
 4. Add it to your local python site-packages using the below commands from the same directory as above:
 
    ```   site_dir=`python -c'import site; print site.getusersitepackages()'` ```
@@ -110,3 +110,11 @@ Please follow the below file name conventions when writing and reading your code
       
    e.g. ```109925_CAU01A_100715_0842_2_c,rfDC,bp1-45,ar,happy-evoked.png``` would indicate a plot of averages over 'happy condition' for 1 to 45 Hz band passed data. 
 
+11. Raw file after artifact rejection, and CTPS based brain components selected, e.g., based on trigger or response based components (after ICA/CTPS on cleaned data) - ```109925_CAU01A_100715_0842_2_c,rfDC,bp1-45,ar,ctpsbr-trigger-raw.fif```.
+   
+   (,ctpsbr-trigger)
+   (,ctpsbr-response)
+
+If you choose a combination of different phase-locked components then simply add
+
+   (,ctpsbr)
