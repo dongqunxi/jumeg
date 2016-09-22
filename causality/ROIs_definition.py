@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 ROIs definition using STCs from spatial-temporal clustering.
 '''
@@ -19,7 +20,7 @@ conditions = [('sti', 'LLst'), ('sti', 'RRst'), ('sti', 'RLst'), ('sti', 'LRst')
 thr = 0 # Threshold of the time span of STC (ms)
 vert_size = 10 # minimum size for ROIs (mm)
 
-do_ROIs = False
+do_ROIs = True
 if do_ROIs:
     reset_directory(labels_path+'ini/')
     fn_src = subjects_dir + '/fsaverage/bem/fsaverage-ico-5-src.fif'
@@ -50,14 +51,15 @@ if do_ROIs:
             print 'right hemisphere ROI_%d has %d vertices' % (j, rh_label.vertices.shape[0])
             rh_label.save(labels_path + 'ini/%s,%s_%s' % (side, conf_type, str(j)))
             j = j + 1
-
+#b = stc.plot(hemi=‘both’, subject=subject, subject_dir=subject_dir)
+#b.scale_data_colormap(0, stc.data.mean(), stc.data.max(), True)
 # Merge ROIs across conditions
-do_merge = False
+do_merge = True
 if do_merge:
     apply_merge(labels_path)
 
 # Split large cluster
-do_split = False
+do_split = True
 if do_split:
     ''' Before this conduction, we need to check the large ROI which are
         necessary for splitting. Collect the anatomical labels involve in
@@ -115,7 +117,7 @@ if red_size:
     fn_src = subjects_dir + '/fsaverage/bem/fsaverage-ico-5-src.fif'
     redu_small(tar_path, vert_size, fn_src)
     
-do_write_list = True
+do_write_list = False
 if do_write_list:
     tar_path = labels_path + 'func/'
     func_list1 = glob.glob(tar_path + '*-lh.label')

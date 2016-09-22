@@ -39,22 +39,22 @@ overlap = 0 # miliseconds
 nfreqs = 678.17
 
 # The parameters for clusterring test
-permutation = 16384
-p_th = 0.0001 # spatial p-value
-p_v = 0.005 # comparisons corrected p-value
+permutation = 8192
+p_th = 0.001 # spatial p-value
+p_v = 0.05 # comparisons corrected p-value
 
 # Cluster operation
 do_apply_invers_ave = False # Making inverse operator
-do_apply_STC_ave = True # Inversing conduction
-do_morph_STC_ave = True # STC morphing conduction
-do_calc_matrix = True # Form the group matrix or load directly
+do_apply_STC_ave = False # Inversing conduction
+do_morph_STC_ave = False # STC morphing conduction
+do_calc_matrix = False # Form the group matrix or load directly
 do_mv_ave = False #The moving average conduction
 do_ftest = False # 2sample f test conduction
 do_ttest = True # 1sample t test
 do_clu2STC = False
 # Set the option for stimulus or response
-conf_per = False
-conf_res = True
+conf_per = True
+conf_res = False
 #conf_per = sys.argv[1]
 #conf_res = sys.argv[2]
 
@@ -153,7 +153,7 @@ if do_ttest:
                 fn_clu_out=fn_clu_out)
         print Y.shape
         del Y
-        clu2STC(fn_clu_out, p_thre=p_v, tstep=0.01)
+        clu2STC(fn_clu_out, p_thre=p_v, tstep=tstep)
     print '>>> FINISHED with the clusters generation.'
     print ''
 
@@ -195,5 +195,5 @@ if do_ftest:
 if do_clu2STC:
     print '>>> Transfer cluster to STC ....'
     for evt in evt_list:
-        fn_cluster = stcs_path + 'Ttestpermu%d_pthr%.4f_%s.npz' %(permutation, p_th, evt)
-        clu2STC(fn_cluster, p_thre=p_v, tstep=0.01)
+        fn_cluster = stcs_path + 'Ttestpermu%d_pthr%.4f_%s_%s.npz' %(permutation*2, p_th, conf_type, evt)
+        clu2STC(fn_cluster, p_thre=p_v)

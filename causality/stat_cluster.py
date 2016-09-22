@@ -379,7 +379,7 @@ def clu2STC(fn_cluster, p_thre=0.05, tstep=None):
         tstep: float
             The interval between timepoints.
     '''
-    fn_stc_out = fn_cluster[:fn_cluster.rfind('.npz')] + ',temp_%.3f' % (p_thre)
+    fn_stc_out = fn_cluster[:fn_cluster.rfind('.npz')] + ',p_corrected%.3f' % (p_thre)
     npz = np.load(fn_cluster)
     if tstep is None:
         tstep = npz['tstep'].flatten()[0]

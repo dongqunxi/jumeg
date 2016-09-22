@@ -37,9 +37,9 @@ ifre = int(sfreq / (2 * morder))
 freqs = [(ifre, 2*ifre), (2*ifre, 3*ifre), (3*ifre, 4*ifre), (4*ifre, 5*ifre)]
 
 # Cluster operation
-do_apply_invers_oper = False # Making inverse operator
-do_apply_STC_epo = False # Making STCs
-do_extract_rSTCs = True
+do_apply_invers_oper = True# Making inverse operator
+do_apply_STC_epo = True # Making STCs
+do_extract_rSTCs = False
 do_norm = False
 do_morder = False
 do_moesti = False
@@ -61,8 +61,9 @@ if do_apply_invers_oper:
 # Making STCs
 if do_apply_STC_epo:
     print '>>> Calculate morphed STCs ....'
-    for evt in st_list[2:]:
+    for evt in st_list:
         fn_epo = glob.glob(subjects_dir+'/*[0-9]/MEG/*ocarta,evtW_%s_bc-epo.fif' %evt)
+        #fn_epo = glob.glob(subjects_dir+'/109077/MEG/*ocarta,evtW_%s_bc-epo.fif' %evt)
         apply_STC_epo(fn_epo, event=evt, subjects_dir=subjects_dir)
     print '>>> FINISHED with morphed STC generation.'
     print ''
@@ -83,7 +84,8 @@ if do_extract_rSTCs:
 # Normalization STCs
 if do_norm:
     print '>>> Calculate normalized rSTCs ....'
-    ts_path = glob.glob(subjects_dir+'/fsaverage/stcs/*[0-9]/*_labels_ts.npy')
+    #ts_path = glob.glob(subjects_dir+'/fsaverage/stcs/*[0-9]/*_labels_ts.npy')
+    ts_path = glob.glob(subjects_dir+'/fsaverage/fzjstcs/*[0-9]/*_labels_ts.npy')
     normalize_data(ts_path)
     print '>>> FINISHED with normalized rSTC generation.'
     print ''
@@ -93,7 +95,7 @@ if do_norm:
 # 2) Causality analysis
 if do_morder:
     print '>>> Calculate the optimized Model order....'
-    fn_norm = glob.glob(subjects_dir+'/fsaverage/stcs/*[0-9]/*_labels_ts,norm.npy')
+    fn_norm = glob.glob(subjects_dir+'/fsaverage/fzjstcs/*[0-9]/*_labels_ts,norm.npy')
     # Get optimized model order using BIC
     model_order(fn_norm, p_max=100)
     print '>>> FINISHED with optimized model order generation.'
@@ -101,8 +103,9 @@ if do_morder:
 
 if do_moesti:
     print '>>> Envaluate the cosistency, whiteness, and stable features of the Model....'
-    fn_monorm = glob.glob(subjects_dir+'/fsaverage/stcs/*[0-9]/*_labels_ts,norm.npy')
-    model_estimation(fn_monorm, morder=40)
+    #fn_monorm = glob.glob(subjects_dir+'/fsaverage/stcs/*[0-9]/*_labels_ts,norm.npy')
+    fn_norm = glob.glob(subjects_dir+'/fsaverage/fzjstcs/*[0-9]/*_labels_ts,norm.npy')
+    model_estimation(fn_norm, morder=40)
     print '>>> FINISHED with the results of statistical tests generation.'
     print ''
 

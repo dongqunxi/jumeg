@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import numpy as np
 import math
@@ -230,7 +231,7 @@ def model_order(fn_norm, p_max=0):
         AF[:, kf] = np.linalg.solve(CXF.T, I)
         AB[:, kb] = np.linalg.solve(CXB.T, I)
         while k <= q - 1:
-            print('model order = %d' % k)
+            #print('model order = %d' % k)
             #import pdb
             #pdb.set_trace()
             tempF = np.reshape(XX[:, 0:k, k:m, :], (kn, M), order='F')
@@ -264,9 +265,9 @@ def model_order(fn_norm, p_max=0):
         morder = np.nanargmin(bic) + 1
         figmorder = fnnorm[:fnnorm.rfind('.npy')] + ',morder_%d.png' % morder
         _plot_morder(bic, morder, figmorder)
-        fnnormz = fnnorm[:fnnorm.rfind('.npy')] + ',morder_%d.npz' % morder
-        np.savez(fnnormz, X=X, morder=morder)
-        #return morder
+        #fnnormz = fnnorm[:fnnorm.rfind('.npy')] + ',morder_%d.npz' % morder
+        #np.savez(fnnormz, X=X, morder=morder)
+        return morder
 
 def _tsdata_to_var(X,p):
     """
@@ -434,7 +435,38 @@ def _consistency(X, E):
     cons = 1 - np.linalg.norm(Rs - Rr, 2) / np.linalg.norm(Rr, 2)
     return cons
 
+def is_stable(mvar):
+        """Test if VAR model is stable.
+        This function tests stability of the VAR model as described in [1]_.
+        Returns
+        -------
+        out : bool
+            True if the model is stable.
+        References
+        ----------
+        .. [1] H. Lütkepohl, "New Introduction to Multiple Time Series
+               Analysis", 2005, Springer, Berlin, Germany.
+        """
+        import scipy as sp
+        m, mp = mvar.coef.shape
+        p = mp // m
+        assert(mp == m * p)  # TODO: replace with raise?
 
+        top_block = []
+        for i in range(m):
+            top_block.append(mvar.coef[:, i*p:(i+1)*p])
+        top_block = np.hstack(top_block)
+
+        im = np.eye(m)
+        eye_block = im
+        for i in range(p - 2):
+            eye_block = sp.linalg.block_diag(im, eye_block)
+        eye_block = np.hstack([eye_block, np.zeros((m * (p - 1), m))])
+
+        tmp = np.vstack([top_block, eye_block])
+
+        return np.all(np.abs(np.linalg.eig(tmp)[0]) < 1)
+    
 def model_estimation(fn_norm, thr_cons=0.8, whit_min=1., whit_max=3.,
                      morder=None):
     '''
@@ -471,16 +503,21 @@ def model_estimation(fn_norm, thr_cons=0.8, whit_min=1., whit_max=3.,
         A, SIG, E = _tsdata_to_var(X, morder)
         whi = False
         dw, pval = _whiteness(X, E)
-        #if np.all(dw < whit_max) and np.all(dw > whit_min):
-        #    whi = True
-        if np.all(pval < 0.05):
+        if np.all(dw < whit_max) and np.all(dw > whit_min):
             whi = True
+        
+        #if np.all(pval < 0.05):
+        #    whi = True
         cons = _consistency(X, E)
         X = X.transpose(2, 0, 1)
+        #morder = model_order(fnnorm, p_max=50)
         mvar = scot.var.VAR(morder)
         mvar.fit(X)
         is_st = mvar.is_stable()
-        if cons < thr_cons or is_st is False or whi is False:
+        #is_st = is_stable(mvar)
+        #import pdb
+        #pdb.set_trace()
+        if cons < thr_cons or is_st == False or whi == False:
             print fnnorm
         # assert cons > thr_cons and is_st and whi, ('Consistency, whiteness, stability:\
         #                                    %f, %s, %s' %(cons, str(whi), str(is_st)))
@@ -600,8 +637,8 @@ def causal_analysis(fn_norm, method='GPDC', morder=None, repeats=1000,
         delta_F = sfreq / float(2 * nfft)
         sig_freqs = []
         nfreq = len(freqs)
-        surr_bands = []
-        cau_bands = []
+        #surr_bands = []
+        #cau_bands = []
         for ifreq in range(nfreq):
             print 'Frequency index used..', ifreq
             fmin, fmax = int(freqs[ifreq][0] / delta_F), int(freqs[ifreq][1] /
@@ -613,8 +650,8 @@ def causal_analysis(fn_norm, method='GPDC', morder=None, repeats=1000,
             for i in xrange(r):
                 ts = surr_band[i]
                 np.fill_diagonal(ts, 0)
-            surr_bands.append(surr_band)
-            cau_bands.append(con_band)
+            #surr_bands.append(surr_band)
+            #cau_bands.append(con_band)
             con_b = con_band.flatten()
             con_b = con_b[con_b > 0]
             surr_b = surr_band.reshape(r, s * s)
@@ -637,10 +674,10 @@ def causal_analysis(fn_norm, method='GPDC', morder=None, repeats=1000,
         sig_freqs = np.array(sig_freqs)
         print 'Saving computed arrays..'
         np.save(sig_path + '%s_sig_con_band.npy' % condition, sig_freqs)
-        cau_bands = np.array(cau_bands)
-        np.save(fncau, cau_bands)
-        surr_bands = np.array(surr_bands)
-        np.save(fnsurr, surr_bands)
+        #cau_bands = np.array(cau_bands)
+        #np.save(fncau, cau_bands)
+        #surr_bands = np.array(surr_bands)
+        #np.save(fnsurr, surr_bands)
 
     return
 
@@ -707,7 +744,7 @@ def sig_thresh(cau_list, freqs, per=99.99, sfreq=678):
         np.save(sig_path + '%s_sig_con_band.npy' %condition, sig_freqs)
 
 
-def group_causality(sig_list, condition, ROI_labels, freqs,
+def group_causality(sig_list, condition, freqs, ROI_labels=None,
                     out_path=None, submount=10):
 
     """
@@ -746,8 +783,10 @@ def group_causality(sig_list, condition, ROI_labels, freqs,
         cmap = plt.get_cmap('hot', cau_band.max()+1-submount)
         cmap.set_under('gray')
         plt.matshow(cau_band, interpolation='nearest', vmin=submount, cmap=cmap)
-        plt.xticks(np.arange(16), ROI_labels, fontsize=9, rotation='vertical')
-        plt.yticks(np.arange(16), ROI_labels, fontsize=9)
+        if ROI_labels == None:
+            ROI_labels = np.arange(cau_band.shape[0]) + 1
+        pl.xticks(np.arange(cau_band.shape[0]), ROI_labels, fontsize=9, rotation='vertical')
+        pl.yticks(np.arange(cau_band.shape[0]), ROI_labels, fontsize=9)
         # pl.imshow(cau_band, interpolation='nearest')
         # pl.set_cmap('BlueRedAlpha')
         np.save(out_path + '/%s_%s_%sHz.npy' %

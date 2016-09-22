@@ -5,11 +5,13 @@ import numpy as np
 import glob
 import matplotlib.pyplot as plt
 
-subjects_dir = os.environ['SUBJECTS_DIR']
-stcs_path = subjects_dir + '/fsaverage/conf_stc/'
+#subjects_dir = os.environ['SUBJECTS_DIR']
+#stcs_path = subjects_dir + '/fsaverage/conf_stc/'
 
-fn_cau = subjects_dir + '/stcs/109077/LLst_labels_ts,norm,morder40,cau.npy'
-fn_surr = subjects_dir + '/stcs/109077/LLst_labels_ts,norm,morder40,surrcau.npy'
+#fn_cau = subjects_dir + '/stcs/109077/LLst_labels_ts,norm,morder40,cau.npy'
+#fn_surr = subjects_dir + '/stcs/109077/LLst_labels_ts,norm,morder40,surrcau.npy'
+fn_cau = '/home/uais/Downloads/causal_spectral/LRst_labels_ts,norm,morder40,cau.npy'
+fn_surr = '/home/uais/Downloads/causal_spectral/LRst_labels_ts,norm,morder40,surrcau.npy'
 
 con = np.load(fn_cau)
 surr_subject = np.load(fn_surr)
@@ -17,7 +19,7 @@ surr_subject = np.load(fn_surr)
 sfreq = 678
 nfft = 512
 delta_F = sfreq / float(2 * nfft)
-freqs_band = (4, 40)
+freqs_band = (1, 40)
 fmin_c, fmax_c = int(freqs_band[0] / delta_F), int(freqs_band[1] / delta_F)
 freq = np.linspace(0, sfreq / 2, nfft)
 freqs = freq[fmin_c:fmax_c+1]
